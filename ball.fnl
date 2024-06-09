@@ -1,8 +1,7 @@
-(fn random-color-value []
-  (+ 0.2 (* (math.random) (- 1.0 0.2))))
+(local { : random } (require "lib.lume"))
 
 (fn random-color []
-  [(random-color-value) (random-color-value) (random-color-value) (random-color-value)])
+  [(random 0.2 1) (random 0.2 1) (random 0.2 1) (random 0.2 1)])
  
 (fn collision-check [ball max-x max-y]
   {:x (or (>= ball.x (- max-x ball.width)) (<= ball.x 0))
