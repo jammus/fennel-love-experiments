@@ -1,8 +1,9 @@
-(local { : randomchoice } (require :lume))
+(fn random-color-value []
+  (+ 0.2 (* (math.random) (- 1.0 0.2))))
 
-(local colors [ [1 0 0 1] [0 0 1 1] [0 1 0 1] ])
+(fn random-color []
+  [(random-color-value) (random-color-value) (random-color-value) (random-color-value)])
  
-
 (fn collision-check [ball max-x max-y]
   {:x (or (>= ball.x (- max-x ball.width)) (<= ball.x 0))
    :y (or (>= ball.y (- max-y ball.height)) (<= ball.y 0))})
@@ -19,7 +20,7 @@
   :y 100
   :dx 200
   :dy 100
-  :color (randomchoice colors)
+  :color (random-color)
   :width (math.random 10 100)
   :height (math.random 10 100)
   :growth {:rate 10
@@ -43,7 +44,7 @@
     : dx
     : dy
     :color (if (or collision?.x collision?.y)
-               (randomchoice colors)
+               (random-color)
                ball.color)
     :growth {:rate ball.growth.rate
     :target-width (if (or collision?.x collision?.y)
