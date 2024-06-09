@@ -1,10 +1,14 @@
 (local repl (require "lib.stdio"))
 (local core (require :core))
-(local { : hotswap } (require :lume))
+(local { : hotswap } (require "lib.lume"))
 
 (math.randomseed (os.time))
 
 (global state {})
+
+(comment
+  (. state.ball :color)
+)
 
 (fn love.load []
   (core.init state)
