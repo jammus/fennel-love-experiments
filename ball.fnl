@@ -15,6 +15,16 @@
         (+ current (* rate dt))
         current))
 
+(fn bumper-hit [current]
+  (let [new-speed (random 900 1300)]
+    (if (> current 0)
+        (* new-speed -1)
+        new-speed)))
+
+(fn apply-friction [dt current target]
+  (let [real-target (if (< current 0) (* target -1) target)]
+    (grow-to-target dt current real-target 500)))
+
 (fn grow-ball [dt { : width : height : growth }]
   [(grow-to-target dt width growth.target-width growth.rate)
    (grow-to-target dt height growth.target-height growth.rate)])
@@ -29,11 +39,11 @@
 (fn update [dt ball max-x max-y]
   (let [collision? (collision-check ball max-x max-y)
                    dx (if collision?.x
-                          (* ball.dx -1)
-                          ball.dx)
+                          (bumper-hit ball.dx)
+                          (apply-friction dt ball.dx 200))
                    dy (if collision?.y
-                          (* ball.dy -1)
-                          ball.dy)
+                          (bumper-hit ball.dy)
+                          (+ ball.dy (* 980 dt)))
         [width height] (grow-ball dt ball)]
     {:width width
     :height height
