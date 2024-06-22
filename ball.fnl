@@ -1,5 +1,7 @@
 (local { : random } (require "lib.lume"))
 
+(local g 2000)
+
 (fn random-color []
   [(random 0.2 1) (random 0.2 1) (random 0.2 1) (random 0.2 1)])
  
@@ -16,7 +18,7 @@
         current))
 
 (fn bumper-hit [current]
-  (let [new-speed (random 900 1300)]
+  (let [new-speed (random 1200 1300)]
     (if (> current 0)
         (* new-speed -1)
         new-speed)))
@@ -43,7 +45,7 @@
                           (apply-friction dt ball.dx 200))
                    dy (if collision?.y
                           (bumper-hit ball.dy)
-                          (+ ball.dy (* 980 dt)))
+                          (+ ball.dy (* g dt)))
         [width height] (grow-ball dt ball)]
     {:width width
     :height height
@@ -51,9 +53,7 @@
     :y (math.min (math.max (+ ball.y (* dy dt)) 0) (- max-y height))
     : dx
     : dy
-    :color (if collision?.any
-               (random-color)
-               ball.color)
+    :color ball.color
     :growth {:rate ball.growth.rate
     :target-width (if collision?.any
                       (math.random 10 100)
