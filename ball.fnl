@@ -6,34 +6,11 @@
   [(random 0.2 1) (random 0.2 1) (random 0.2 1) (random 0.2 1)])
  
 (fn collision-check [ball max-x max-y]
-  (let [x (or (>= ball.x (- max-x ball.width)) (<= ball.x 0))
-        y (or (>= ball.y (- max-y ball.height)) (<= ball.y 0))]
-    {: x : y :any (or x y)}))
-
-(fn grow-to-target [dt current target rate]
-    (if (> current target)
-        (- current (* rate dt))
-        (< current target)
-        (+ current (* rate dt))
-        current))
-
-(fn bumper-hit [current mix max threshold]
-  (let [new-speed (random mix max)]
-    (if (and (< (math.abs current) threshold) (> threshold 0))
-        0
-        (> current 0)
-        (* new-speed -1)
-        new-speed)))
-
-(fn apply-friction [dt current target]
-  (let [real-target (if (< current 0) (* target -1) target)]
-    (if (= (- (math.floor current) target) 0)
-        0
-        (grow-to-target dt current real-target 600))))
-
-(fn grow-ball [dt { : width : height : growth }]
-  [(grow-to-target dt width growth.target-width growth.rate)
-   (grow-to-target dt height growth.target-height growth.rate)])
+  (let [x0 (<= ball.x 0)
+        x1 (>= ball.x (- max-x ball.width))
+        y0 (<= ball.y 0)
+        y1 (>= ball.y (- max-y ball.height))]
+    {: x0 : x1 : y0 : y1 :x (or x0 x1) :y (or y0 y1) :any (or x0 x1 y0 y1)}))
 
 (fn init [] {
   :x 100 :y 100
@@ -42,28 +19,25 @@
   :width (math.random 10 100) :height (math.random 10 100)
   :growth {:rate 10 :target-width (math.random 10 100) :target-height (math.random 10 100)}})
 
-(fn update [dt ball max-x max-y]
-  (let [collision? (collision-check ball max-x max-y)
-                   dx (if collision?.x
-                          (bumper-hit ball.dx 600 700 0)
-                          (apply-friction dt ball.dx 0))
-                   dy (if collision?.y
-                          0
-                          (+ ball.dy (* g dt)))]
-    {:width ball.width
-    :height ball.height
-    :x (math.min (math.max (+ ball.x (* dx dt)) 0) (- max-x ball.width))
-    :y (math.min (math.max (+ ball.y (* dy dt)) 0) (- max-y ball.height))
-    : dx
-    : dy
-    :color ball.color
-    :growth {:rate ball.growth.rate
-    :target-width (if collision?.any
-                      (math.random 10 100)
-                      ball.growth.target-width)
-    :target-height (if collision?.any
-                       (math.random 10 100)
-                       ball.growth.target-height)}}))
+(fn update [dt ball action max-x max-y]
+  (set ball.x (math.min (math.max (+ ball.x (* ball.dx dt)) 0) (- max-x ball.width)))
+  (set ball.y (math.min (math.max (+ ball.y (* ball.dy dt)) 0) (- max-y ball.height)))
+  (let [collision? (collision-check ball max-x max-y)]
+    (set ball.dx 0)
+    (when (. action :left)
+      (set ball.dx -200))
+    (when (. action :right)
+      (set ball.dx 200))
+    (when (. collision? :y)
+      (set ball.dy 0))
+    (when (not (. collision? :y1))
+      (set ball.dy (+ ball.dy (* g dt))))
+    (when (and (. action :jump)
+               (or (. collision? :y1)
+                   (and (. collision? :x0) (. action :right))
+                   (and (. collision? :x1) (. action :left))))
+      (set ball.dy -500)))
+  ball)
 
 (fn draw [ball]
   (love.graphics.setColor ball.color)
