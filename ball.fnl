@@ -22,12 +22,12 @@
 (fn update [dt ball action max-x max-y]
   (set ball.x (math.min (math.max (+ ball.x (* ball.dx dt)) 0) (- max-x ball.width)))
   (set ball.y (math.min (math.max (+ ball.y (* ball.dy dt)) 0) (- max-y ball.height)))
+  (set ball.dx 0)
+  (when (. action :left)
+    (set ball.dx -200))
+  (when (. action :right)
+    (set ball.dx 200))
   (let [collision? (collision-check ball max-x max-y)]
-    (set ball.dx 0)
-    (when (. action :left)
-      (set ball.dx -200))
-    (when (. action :right)
-      (set ball.dx 200))
     (when (. collision? :y)
       (set ball.dy 0))
     (when (not (. collision? :y1))
