@@ -1,6 +1,6 @@
 (local { : random } (require "lib.lume"))
 
-(local g 2000)
+(local g 980)
 
 (fn random-color []
   [(random 0.2 1) (random 0.2 1) (random 0.2 1) (random 0.2 1)])
@@ -17,15 +17,19 @@
         (+ current (* rate dt))
         current))
 
-(fn bumper-hit [current]
-  (let [new-speed (random 1200 1300)]
-    (if (> current 0)
+(fn bumper-hit [current mix max threshold]
+  (let [new-speed (random mix max)]
+    (if (and (< (math.abs current) threshold) (> threshold 0))
+        0
+        (> current 0)
         (* new-speed -1)
         new-speed)))
 
 (fn apply-friction [dt current target]
   (let [real-target (if (< current 0) (* target -1) target)]
-    (grow-to-target dt current real-target 500)))
+    (if (= (- (math.floor current) target) 0)
+        0
+        (grow-to-target dt current real-target 600))))
 
 (fn grow-ball [dt { : width : height : growth }]
   [(grow-to-target dt width growth.target-width growth.rate)
@@ -41,16 +45,15 @@
 (fn update [dt ball max-x max-y]
   (let [collision? (collision-check ball max-x max-y)
                    dx (if collision?.x
-                          (bumper-hit ball.dx)
-                          (apply-friction dt ball.dx 200))
+                          (bumper-hit ball.dx 600 700 0)
+                          (apply-friction dt ball.dx 0))
                    dy (if collision?.y
-                          (bumper-hit ball.dy)
-                          (+ ball.dy (* g dt)))
-        [width height] (grow-ball dt ball)]
-    {:width width
-    :height height
-    :x (math.min (math.max (+ ball.x (* dx dt)) 0) (- max-x width))
-    :y (math.min (math.max (+ ball.y (* dy dt)) 0) (- max-y height))
+                          0
+                          (+ ball.dy (* g dt)))]
+    {:width ball.width
+    :height ball.height
+    :x (math.min (math.max (+ ball.x (* dx dt)) 0) (- max-x ball.width))
+    :y (math.min (math.max (+ ball.y (* dy dt)) 0) (- max-y ball.height))
     : dx
     : dy
     :color ball.color
