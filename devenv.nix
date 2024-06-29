@@ -5,7 +5,8 @@
   env.GREET = "devenv";
 
   # https://devenv.sh/packages/
-  packages = [ pkgs.git pkgs.love ];
+  packages = [ pkgs.git ]
+    ++ (pkgs.lib.optionals pkgs.stdenv.isLinux [pkgs.love]);
 
   # https://devenv.sh/scripts/
   scripts.hello.exec = "echo hello from $GREET";
