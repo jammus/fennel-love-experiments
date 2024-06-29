@@ -1,5 +1,7 @@
 (local { : random } (require "lib.lume"))
 
+(local character (love.graphics.newImage "assets/pixel-adventure/main-characters/virtual-guy/jump.png"))
+
 (local g 980)
 
 (fn random-color []
@@ -16,7 +18,7 @@
   :x 100 :y 100
   :dx 200 :dy 100
   :color (random-color)
-  :width (math.random 10 100) :height (math.random 10 100)
+  :width 32 :height 32
   :growth {:rate 10 :target-width (math.random 10 100) :target-height (math.random 10 100)}})
 
 (fn update [dt ball action max-x max-y]
@@ -40,7 +42,6 @@
   ball)
 
 (fn draw [ball]
-  (love.graphics.setColor ball.color)
-  (love.graphics.rectangle :fill ball.x ball.y ball.width ball.height))
+  (love.graphics.draw character ball.x ball.y))
 
 {: init : update : draw}
