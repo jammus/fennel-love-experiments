@@ -1,6 +1,9 @@
 (local { : random } (require "lib.lume"))
+(local anim8 (require "lib.anim8"))
 
-(local character (love.graphics.newImage "assets/pixel-adventure/main-characters/virtual-guy/jump.png"))
+(local idle-sheet (love.graphics.newImage "assets/pixel-adventure/main-characters/virtual-guy/idle.png"))
+(local idle-grid (anim8.newGrid 32 32 (idle-sheet:getWidth) (idle-sheet:getHeight)))
+(local idle-anim (anim8.newAnimation (idle-grid "1-11" 1) 0.1))
 
 (local g 980)
 
@@ -22,6 +25,7 @@
   :growth {:rate 10 :target-width (math.random 10 100) :target-height (math.random 10 100)}})
 
 (fn update [dt ball action max-x max-y]
+  (idle-anim:update dt)
   (set ball.x (math.min (math.max (+ ball.x (* ball.dx dt)) 0) (- max-x ball.width)))
   (set ball.y (math.min (math.max (+ ball.y (* ball.dy dt)) 0) (- max-y ball.height)))
   (set ball.dx 0)
@@ -42,6 +46,6 @@
   ball)
 
 (fn draw [ball]
-  (love.graphics.draw character ball.x ball.y))
+  (idle-anim:draw idle-sheet ball.x ball.y))
 
 {: init : update : draw}
